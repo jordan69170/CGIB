@@ -2,4 +2,4 @@ Flask-SQLAlchemy
 Flask-Migrate
 Flask-SocketIO
 psycopg2-binary
-gunicorn eventlet
+gunicorn
