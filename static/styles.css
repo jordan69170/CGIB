@@ -1,0 +1,211 @@
+/* ✅ Appliquer un style global au body */
+body {
+    padding-top: 60px; /* Ajusté pour éviter que le contenu ne soit caché par la navbar */
+    font-family: 'Poppins', sans-serif; /* Police moderne et lisible */
+    background-color: #f8f9fa; /* Fond gris clair */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+/* ✅ Conteneur de connexion modernisé */
+.login-container {
+    width: 100%;
+    max-width: 350px;
+    margin: 30px auto;
+    padding: 20px;
+    background: white;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    text-align: center;
+}
+
+/* ✅ Champs de saisie modernisés */
+input {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    transition: border 0.3s ease-in-out;
+}
+
+input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}
+
+/* ✅ Bouton modernisé (taille réduite, couleurs pragmatiques) */
+button, .btn {
+    width: auto;
+    padding: 8px 16px;
+    font-size: 14px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out, transform 0.2s ease-in-out;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-success {
+    background-color: #28a745;
+    color: white;
+}
+
+.btn-success:hover {
+    background-color: #218838;
+}
+
+.btn-warning {
+    background-color: #ffc107;
+    color: black;
+}
+
+.btn-warning:hover {
+    background-color: #e0a800;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #c82333;
+}
+
+.btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.btn-info:hover {
+    background-color: #138496;
+}
+
+/* ✅ Navbar moderne et responsive */
+.navbar {
+    background-color: #343a40 !important;
+}
+
+.navbar-nav .nav-link {
+    color: white !important;
+    transition: color 0.2s ease-in-out;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #007bff !important;
+}
+
+.navbar-toggler {
+    border: none;
+    outline: none;
+}
+
+/* ✅ Contenu principal */
+.container {
+    max-width: 1000px;
+    width: 90%;
+}
+
+/* ✅ Cartes interactives */
+.card-hover {
+    transition: all 0.3s ease-in-out;
+    border-radius: 8px;
+    background: #ffffff;
+}
+
+.card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* ✅ Icônes des cartes */
+.card-body i {
+    transition: color 0.2s ease-in-out;
+}
+
+.card-hover:hover i {
+    color: #007bff !important;
+}
+
+/* ✅ Tableaux stylisés */
+.table {
+    border-radius: 5px;
+    overflow: hidden;
+    font-size: 14px;
+}
+
+.table th {
+    background-color: #343a40;
+    color: white;
+    text-align: center;
+}
+
+.table td {
+    text-align: center;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #f8f9fa;
+}
+
+/* ✅ Messages flash */
+.alert-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 10px auto;
+}
+
+.alert {
+    padding: 10px;
+    border-radius: 5px;
+    transition: opacity 0.3s ease-in-out;
+}
+
+/* ✅ Footer */
+.footer {
+    background-color: #343a40;
+    color: white;
+    padding: 15px 0;
+    text-align: center;
+    width: 100%;
+    position: relative;
+    bottom: 0;
+}
+
+/* ✅ Responsive design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+    }
+
+    .login-container {
+        max-width: 90%;
+    }
+
+    .table {
+        font-size: 12px;
+    }
+
+    button, .btn {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+}

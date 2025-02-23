@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}📋 Shifts Logs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📋 Shifts Logs</h2>
+
+    <!-- 🔹 Messages Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 📋 Table des shifts -->
+    <div class="table-responsive">
+        <table class="table table-striped shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>User</th>
+                    <th>📞 Duty Phone</th>
+                    <th>⏳ Shift start</th>
+                    <th>✅ End of Shift</th>
+                    <th>📝 Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for shift in shifts %}
+                <tr>
+                    <td>{{ shift.id }}</td>
+                    <td>{{ shift.user_name }}</td>
+                    <td>📱 {{ shift.duty_phone }}</td>
+                    <td>{{ shift.start_time.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                    <td>
+                        {% if shift.end_time %}
+                            {{ shift.end_time.strftime('%d/%m/%Y %H:%M:%S') }}
+                        {% else %}
+                            <span class="badge bg-warning text-dark">In progress...</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ shift.comment if shift.comment else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

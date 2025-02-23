@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}Modifier un Véhicule{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">🚗 Edit the Vehicle</h2>
+
+    <div class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
+        <form method="POST">
+            <!-- Nom du véhicule -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">🚗 Vehicle's Name</label>
+                <input type="text" class="form-control" name="name" value="{{ vehicle.name }}" required>
+            </div>
+
+            <!-- Boutons -->
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success btn-sm">
+                    <i class="fas fa-save"></i> Save
+                </button>
+                <a href="{{ url_for('manage_vehicles') }}" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

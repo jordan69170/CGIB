@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+
+{% block title %}Car Follow-Up{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center">Vehicles</h2>
+
+    <!-- 🔹 Affichage des messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 📋 Liste des véhicules -->
+    <table class="table table-striped shadow-sm" id="vehicleTable">
+        <thead class="table-dark">
+            <tr>
+                <th>Vehicle</th>
+                <th>Status</th>
+                <th>User in Use</th>
+                <th>Action</th> <!-- 🚀 Suppression des colonnes Mileage et Reason for Release -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for vehicle in vehicles %}
+            <tr id="vehicle-{{ vehicle.id }}">
+                <td>{{ vehicle.name }}</td>
+                <td>
+                    <span class="vehicle-status badge {% if vehicle.status == 'Disponible' %} bg-success {% else %} bg-danger {% endif %}">
+                        {{ "Available" if vehicle.status == "Disponible" else "In Use" }}
+                    </span>
+                </td>
+                <td>
+                    <span class="vehicle-user">
+                        {% if vehicle.status == "En cours" and vehicle.username %}
+                            {{ vehicle.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if vehicle.status == "Disponible" %}
+                        <button class="btn btn-success btn-sm take-vehicle" data-vehicle-id="{{ vehicle.id }}">
+                            <i class="fas fa-car"></i> Take
+                        </button>
+                    {% elif vehicle.status == "En cours" %}
+                        {% if session['user_id'] == vehicle.user_id or session['role'] == 'admin' %}
+                            <button class="btn btn-warning btn-sm release-vehicle" data-vehicle-id="{{ vehicle.id }}">
+                                <i class="fas fa-check"></i> Release
+                            </button>
+                        {% else %}
+                            <span class="badge bg-danger">In Use</span>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ✅ Script pour mise à jour en direct -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
+<script>
+    var socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port);
+    var userId = JSON.parse("{{ session['user_id'] | tojson }}");
+    var userRole = "{{ session['role'] }}";
+
+    // 🔄 Mise à jour des véhicules en temps réel via Socket.IO
+    socket.on("vehicle_update", function (data) {
+        console.log("Mise à jour reçue:", data);
+
+        let row = document.getElementById("vehicle-" + data.vehicle_id);
+        if (row) {
+            let statusCell = row.querySelector(".vehicle-status");
+            let userCell = row.querySelector(".vehicle-user");
+            let actionCell = row.querySelector(".take-vehicle, .release-vehicle");
+
+            // Mise à jour du statut et utilisateur
+            statusCell.className = "vehicle-status badge " + (data.status === "Disponible" ? "bg-success" : "bg-danger");
+            statusCell.textContent = data.status === "Disponible" ? "Available" : "In Use";
+            userCell.textContent = data.user_name || "-";
+
+            // Mise à jour des actions
+            if (actionCell) {
+                if (data.status === "Disponible") {
+                    actionCell.outerHTML = `<button class="btn btn-success btn-sm take-vehicle" data-vehicle-id="${data.vehicle_id}">
+                                                <i class="fas fa-car"></i> Take
+                                            </button>`;
+                } else if (userId === data.user_id || userRole === "admin") {
+                    actionCell.outerHTML = `<button class="btn btn-warning btn-sm release-vehicle" data-vehicle-id="${data.vehicle_id}">
+                                                <i class="fas fa-check"></i> Release
+                                            </button>`;
+                } else {
+                    actionCell.outerHTML = `<span class="badge bg-danger">In Use</span>`;
+                }
+            }
+        }
+    });
+
+    // ✅ Événement pour "Take" un véhicule
+    document.addEventListener("click", function (event) {
+        let button = event.target.closest(".take-vehicle");
+        if (button) {
+            let vehicleId = button.getAttribute("data-vehicle-id");
+            console.log("Tentative de prise du véhicule ID:", vehicleId);
+
+            fetch(`/cfu/start/${vehicleId}`, {
+                method: "POST",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Véhicule pris avec succès !");
+                    alert(data.message);
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur:", error));
+        }
+    });
+
+    // ✅ Événement pour "Release" un véhicule
+    document.addEventListener("click", function (event) {
+        let button = event.target.closest(".release-vehicle");
+        if (button) {
+            let vehicleId = button.getAttribute("data-vehicle-id");
+            console.log("Tentative de libération du véhicule ID:", vehicleId);
+
+            let mileage = prompt("Veuillez entrer le kilométrage actuel :");
+            let reason = prompt("Raison du déplacement :");
+
+            if (!mileage || !reason) {
+                alert("Vous devez remplir toutes les informations.");
+                return;
+            }
+
+            let formData = new FormData();
+            formData.append("mileage", mileage);
+            formData.append("reason", reason);
+
+            fetch(`/vehicles/release/${vehicleId}`, {
+                method: "POST",
+                body: formData,
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log("Véhicule libéré avec succès !");
+                    alert(data.message);
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur:", error));
+        }
+    });
+</script>
+{% endblock %}

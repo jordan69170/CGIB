@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %}Historique des Tâches Archivées{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📜 Tasks Archives</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Created</th>
+                <th>Ended</th>
+                <th>Request</th>
+                <th>Room</th>
+                <th>Status</th>
+                <th>Assigned</th>
+                <th>Actions</th>  <!-- ✅ Nouvelle colonne pour la suppression -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>{{ task.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                <td>
+                    {% if task.completed_at %}
+                        {{ task.completed_at.strftime('%d/%m/%Y %H:%M') }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ task.task_type }}</td>
+                <td>{{ task.room_number if task.room_number else '-' }}</td>
+                <td>
+                    {% if task.status == "Annulé" %}
+                        <span class="badge bg-danger">{{ task.status }}</span>
+                    {% elif task.status == "Terminé" %}
+                        <span class="badge bg-success">{{ task.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ task.status }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ task.assigned_to.username if task.assigned_to else '-' }}</td>
+                <td>
+                    <!-- ✅ Bouton de suppression définitive -->
+                    <form action="{{ url_for('delete_task', task_id=task.id) }}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Voulez-vous vraiment supprimer définitivement cette tâche ?')">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top shadow">
+    <div class="container-fluid">
+        <!-- ✅ Titre/logo CGIB -->
+        <a class="navbar-brand fw-bold text-light" href="{{ url_for('dashboard') }}">
+            <i class="fas fa-home"></i> CGIB
+        </a>
+        
+        <!-- ✅ Bouton pour mobiles -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <!-- ✅ Menu déroulant ADMIN -->
+                {% if session['role'] == 'admin' %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle {% if request.endpoint in ['manage_users', 'upload_bod', 'manage_vehicles', 'vehicle_logs'] %}active{% endif %}"
+                       href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cogs"></i> Administration
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('manage_users') }}"><i class="fas fa-users"></i> Gérer les Utilisateurs</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('upload_bod') }}"><i class="fas fa-upload"></i> Uploader un BOD</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('manage_vehicles') }}"><i class="fas fa-car"></i> Gérer les Véhicules</a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('vehicle_logs') }}"><i class="fas fa-history"></i> Historique des Véhicules</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+                
+                <!-- ✅ Autres liens visibles pour tout le monde -->
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'view_bod' %}active{% endif %}" 
+                       href="{{ url_for('view_bod
+                       
+                       ') }}">
+                        <i class="fas fa-folder-open"></i> View BOD
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {% if request.endpoint == 'cfu' %}active{% endif %}" 
+                       href="{{ url_for('cfu') }}">
+                        <i class="fas fa-car-side"></i> Vehicles (CFU)
+                    </a>
+                </li>
+            </ul>
+
+            <!-- ✅ Nom de l'utilisateur et Déconnexion -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <span class="navbar-text text-white me-3">
+                        👤 {{ session.get('username', 'Utilisateur') }}
+                    </span>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-outline-danger btn-sm px-3 rounded-pill" href="{{ url_for('logout') }}">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- ✅ Ajout d'un espace sous la navbar pour éviter qu'elle cache le contenu -->
+<div style="margin-top: 65px;"></div>

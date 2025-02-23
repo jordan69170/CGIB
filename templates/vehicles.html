@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center fw-bold">🚗 Vehicle's Management</h2>
+
+    <!-- 🔹 Affichage des messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 🔎 Champ de recherche -->
+    <div class="input-group my-3 shadow-sm">
+        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher un véhicule..." aria-label="Rechercher">
+        <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+    </div>
+
+    <!-- ✅ Section Admin pour ajouter des véhicules -->
+    {% if session['role'] == 'admin' %}
+    <div class="card p-4 mb-4 shadow-sm">
+        <h4 class="mb-3"><i class="fas fa-car text-success"></i> Add a Vehicle</h4>
+        <form method="POST" action="{{ url_for('add_vehicle') }}">
+            <div class="mb-3">
+                <input type="text" class="form-control" name="name" placeholder="Nom du véhicule" required>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fas fa-plus"></i> Ajouter</button>
+        </form>
+    </div>
+    {% endif %}
+
+    <!-- 🏁 Fenêtre modale pour la libération des véhicules -->
+    <div class="modal fade" id="releaseVehicleModal" tabindex="-1" aria-labelledby="releaseVehicleLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="releaseVehicleLabel">Libération du véhicule</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="releaseVehicleForm">
+                        <input type="hidden" id="vehicleId" name="vehicle_id">
+
+                        <div class="mb-3">
+                            <label for="mileage" class="form-label">Kilométrage actuel</label>
+                            <input type="number" class="form-control" id="mileage" name="mileage" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="reason" class="form-label">Raison du déplacement</label>
+                            <textarea class="form-control" id="reason" name="reason" rows="3" required></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-success">Confirmer</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📋 Liste des véhicules -->
+    <div class="table-responsive">
+        <table class="table table-striped shadow-sm" id="vehicleTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>Vehicle</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vehicle in vehicles %}
+                <tr>
+                    <td>{{ vehicle.name }}</td>
+                    <td>
+                        {% if vehicle.status == "Disponible" %}
+                            <span class="badge bg-success">Available</span>
+                        {% else %}
+                            <span class="badge bg-danger">Waiting</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if vehicle.status == "Disponible" %}
+                            <!-- ✅ Correction : Utilisation d'un formulaire POST -->
+                            <form action="{{ url_for('start_vehicle_use', vehicle_id=vehicle.id) }}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-car-side"></i> Use
+                                </button>
+                            </form>
+                        {% elif vehicle.status == "En cours" %}
+                            <button class="btn btn-warning btn-sm release-btn" data-vehicle-id="{{ vehicle.id }}" data-bs-toggle="modal" data-bs-target="#releaseVehicleModal">
+                                <i class="fas fa-check"></i> Release
+                            </button>
+                        {% endif %}
+                        {% if session['role'] == 'admin' %}
+                            <a href="{{ url_for('delete_vehicle', vehicle_id=vehicle.id) }}" class="btn btn-danger btn-sm">
+                                <i class="fas fa-trash"></i> Delete
+                            </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 🔍 Script pour la recherche instantanée -->
+<script>
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+        let input = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#vehicleTable tbody tr");
+
+        rows.forEach(row => {
+            let vehicleName = row.cells[0].textContent.toLowerCase();
+            let status = row.cells[1].textContent.toLowerCase();
+
+            if (vehicleName.includes(input) || status.includes(input)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+
+    // Gérer l'ouverture de la fenêtre modale et récupérer l'ID du véhicule
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".release-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let vehicleId = this.getAttribute("data-vehicle-id");
+                document.getElementById("vehicleId").value = vehicleId;
+            });
+        });
+
+        // Soumission du formulaire via AJAX
+        document.getElementById("releaseVehicleForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            let formData = new FormData(this);
+
+            fetch("{{ url_for('release_vehicle') }}", {
+                method: "POST",
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Véhicule libéré avec succès !");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur:", error));
+        });
+    });
+</script>
+
+<!-- ✅ Ajout de DataTables pour pagination et tri -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#vehicleTable').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "language": {
+                "lengthMenu": "Afficher _MENU_ véhicules",
+                "search": "Rechercher :",
+                "info": "Affichage de _START_ à _END_ sur _TOTAL_ véhicules",
+                "paginate": {
+                    "first": "Premier",
+                    "last": "Dernier",
+                    "next": "Suivant",
+                    "previous": "Précédent"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

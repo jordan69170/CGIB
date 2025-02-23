@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center mb-4 fw-bold">🚀 Admin Dashboard</h2>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        <div class="col">
+            <a href="{{ url_for('manage_users') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-users fa-2x text-primary mb-3"></i>
+                    <h5 class="card-title">Manage Users</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('upload_bod') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-upload fa-2x text-success mb-3"></i>
+                    <h5 class="card-title">Upload a BOD (PDF)</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('view_bod') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder-open fa-2x text-warning mb-3"></i>
+                    <h5 class="card-title">View BODs</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('manage_vehicles') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-car fa-2x text-info mb-3"></i>
+                    <h5 class="card-title">Manage Vehicles</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('cfu') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-car-side fa-2x text-secondary mb-3"></i>
+                    <h5 class="card-title">Vehicles (CFU)</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('vehicle_logs') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-history fa-2x text-danger mb-3"></i>
+                    <h5 class="card-title">Vehicle History</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('task_list') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-2x text-primary mb-3"></i>
+                    <h5 class="card-title">Tasks</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('admin_shift_logs') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-clipboard-list fa-2x text-dark mb-3"></i>
+                    <h5 class="card-title">Shift Logs</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('tasks_logs') }}" class="card text-dark text-decoration-none shadow-sm card-hover">
+                <div class="card-body text-center">
+                    <i class="fas fa-archive fa-2x text-secondary mb-3"></i>
+                    <h5 class="card-title">Archived Tasks</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('logout') }}" class="card bg-danger text-white text-decoration-none shadow-sm logout-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-sign-out-alt fa-2x mb-3"></i>
+                    <h5 class="card-title">Logout</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

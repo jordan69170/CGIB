@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block title %}Shift Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📅 Shift Management</h2>
+
+    {% if active_shift %}
+        <div class="alert alert-success text-center">
+            🚀 Shift en cours depuis {{ active_shift.start_time.strftime('%d/%m/%Y %H:%M') }} avec Duty Phone n°{{ active_shift.duty_phone }}.
+        </div>
+        <form method="POST" action="{{ url_for('end_shift') }}">
+            <div class="mb-3">
+                <label for="comment" class="form-label fw-bold">📝 End of shift comment</label>
+                <textarea class="form-control" id="comment" name="comment" rows="3" placeholder="Ajoutez un commentaire..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-danger w-100 mt-3">
+                <i class="fas fa-stop-circle"></i> End my Shift
+            </button>
+        </form>
+    {% else %}
+        <form method="POST" action="{{ url_for('start_shift') }}">
+            <div class="mb-3">
+                <label for="duty_phone" class="form-label fw-bold">📱 Select your Duty Phone</label>
+                <select class="form-select" id="duty_phone" name="duty_phone" required>
+                    <option value="" disabled selected>-- Choose a number --</option>
+                    <option value="1">Duty Phone 1</option>
+                    <option value="2">Duty Phone 2</option>
+                    <option value="3">Duty Phone 3</option>
+                    <option value="4">Duty Phone 4</option>
+                    <option value="5">Duty Phone 5</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success w-100 mt-3">
+                <i class="fas fa-play-circle"></i> Start my Shift
+            </button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

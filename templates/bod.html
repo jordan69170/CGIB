@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+
+{% block title %}📂 Fichiers BOD{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📂 BOD's List</h2>
+
+    <!-- 🔹 Affichage des messages de confirmation -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 📋 Tableau des fichiers BOD -->
+    <div class="table-responsive mt-4">
+        <table class="table table-striped shadow-sm" id="bodTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>📄 File Name</th>
+                    <th>⚙️ Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file in files %}
+                <tr>
+                    <td>{{ file }}</td>
+                    <td>
+                        <a href="{{ url_for('download_bod', filename=file) }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-eye"></i> Open
+                        </a>
+                        {% if session['role'] == 'admin' %}
+                        <a href="{{ url_for('delete_bod', filename=file) }}" class="btn btn-sm btn-outline-danger" 
+                           onclick="return confirm('Voulez-vous vraiment supprimer ce fichier ?');">
+                            <i class="fas fa-trash"></i> Delete
+                        </a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+    </div>
+</div>
+
+<!-- ✅ Scripts jQuery & DataTables -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#bodTable').DataTable({
+            "language": {
+                "lengthMenu": "Afficher _MENU_ fichiers",
+                "search": "🔎 Rechercher :",
+                "info": "Affichage de _START_ à _END_ sur _TOTAL_ fichiers",
+                "paginate": {
+                    "first": "Premier",
+                    "last": "Dernier",
+                    "next": "Suivant",
+                    "previous": "Précédent"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

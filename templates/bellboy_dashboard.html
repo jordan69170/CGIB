@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ "Coordinator" if session['role'] == 'coordinator' else "Bellboy" }} Dashboard - CGIB{% endblock %}
+
+{% block content %}
+
+{% if shift_message %}
+    <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+        {{ shift_message }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+{% endif %}
+
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">🚀 {{ "Coordinator" if session['role'] == 'coordinator' else "Bellboy" }} Dashboard</h2>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4 mt-4">
+        <div class="col">
+            <a href="{{ url_for('view_bod') }}" class="card text-dark text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-folder-open fa-2x text-primary mb-2"></i>
+                    <h5 class="card-title">View BODs</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('cfu') }}" class="card text-dark text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-car-side fa-2x text-info mb-2"></i>
+                    <h5 class="card-title">Vehicles (CFU)</h5>
+                </div>
+            </a>
+        </div>
+
+        <!-- ✅ Masquer cette carte pour les Coordinators -->
+        {% if session['role'] != 'coordinator' %}
+        <div class="col">
+            <a href="{{ url_for('shift') }}" class="card text-dark text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-user-clock fa-2x text-warning mb-2"></i>
+                    <h5 class="card-title">Start/End Shift</h5>
+                </div>
+            </a>                      
+        </div>
+        {% endif %}
+        
+        <div class="col">
+            <a href="{{ url_for('task_list') }}" class="card text-dark text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-tasks fa-2x text-success mb-2"></i>
+                    <h5 class="card-title">Tasks</h5>
+                </div>
+            </a>
+        </div>
+        <div class="col">
+            <a href="{{ url_for('logout') }}" class="card bg-danger text-white text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <i class="fas fa-sign-out-alt fa-2x mb-2"></i>
+                    <h5 class="card-title">Logout</h5>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

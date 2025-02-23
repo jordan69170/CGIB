@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Historique des Véhicules{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📜 Vehicle Use History</h2>
+
+    <!-- 🔹 Affichage des messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 📋 Table Responsive -->
+    <div class="table-responsive mt-4">
+        <table class="table table-striped table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Vehicle</th>
+                    <th>User</th>
+                    <th>Start</th>
+                    <th>End</th>
+                    <th>Mileage (km)</th>
+                    <th>Reason for Release</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.id }}</td>
+                    <td>{{ log.vehicle_name }}</td>
+                    <td>{{ log.user_name }}</td>
+                    <td>
+                        {% if log.start_time %}
+                            {{ log.start_time.strftime('%d/%m/%Y %H:%M:%S') }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.end_time %}
+                            {{ log.end_time.strftime('%d/%m/%Y %H:%M:%S') }}
+                        {% else %}
+                            <span class="badge bg-warning text-dark">Waiting...</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.mileage is not none %}
+                            {{ log.mileage }} km
+                        {% else %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.reason %}
+                            {{ log.reason }}
+                        {% else %}
+                            <span class="badge bg-secondary">N/A</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if log.end_time %}
+                            <span class="badge bg-success">Ended</span>
+                        {% else %}
+                            <span class="badge bg-danger">In use</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <button class="btn btn-danger btn-sm delete-log" data-log-id="{{ log.id }}">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ✅ Script pour gérer la suppression des logs -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".delete-log").forEach(button => {
+            button.addEventListener("click", function () {
+                let logId = this.getAttribute("data-log-id");
+
+                if (confirm("Voulez-vous vraiment supprimer cette entrée ?")) {
+                    fetch(`/admin/delete_vehicle_log/${logId}`, {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("Entrée supprimée avec succès !");
+                            location.reload();
+                        } else {
+                            alert("Erreur : " + data.error);
+                        }
+                    })
+                    .catch(error => console.error("Erreur:", error));
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

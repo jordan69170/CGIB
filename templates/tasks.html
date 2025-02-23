@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}Gestion des Tâches{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📌 Task Management</h2>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% if session['role'] == 'admin' or session['role'] == 'coordinator' %}
+    <!-- Formulaire d'ajout de tâche -->
+    <form action="{{ url_for('add_task') }}" method="POST" class="mb-3">
+        <label for="task_type" class="form-label">Request :</label>
+        <select name="task_type" id="task_type" class="form-select">
+            <option value="Luggage PU">Luggage PU</option>
+            <option value="Luggage Drop">Luggage Drop</option>
+            <option value="LaPoste PU">LaPoste PU</option>
+            <option value="LaPost Drop">LaPost Drop</option>
+            <option value="Car PU">Car PU</option>
+        </select>
+
+        <label for="room_number" class="form-label mt-2">Room :</label>
+        <input type="text" name="room_number" id="room_number" class="form-control" placeholder="Ex: 101">
+
+        <button type="submit" class="btn btn-primary mt-2">Add</button>
+    </form>
+    {% endif %}
+
+    <!-- Liste des tâches -->
+    <table class="table" id="taskTable">
+        <thead>
+            <tr>
+                {% if session['role'] == 'admin' %}
+                    <th>Date</th>
+                    <th>Applicant</th>
+                {% endif %}
+                <th>Request</th>
+                <th>Room</th>
+                <th>Status</th>
+                <th>Assigned</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr id="task-{{ task.id }}">
+                {% if session['role'] == 'admin' %}
+                    <td>{{ task.created_at.strftime('%d/%m/%Y %H:%M') }}</td>
+                    <td>{{ task.requester.username }}</td>
+                {% endif %}
+                <td>{{ task.task_type }}</td>
+                <td>{{ task.room_number if task.room_number else '-' }}</td>
+                <td>
+                    <span class="badge {% if task.status == 'Attente' %} bg-warning {% elif task.status == 'En cours' %} bg-primary {% elif task.status == 'Terminé' %} bg-success {% else %} bg-danger {% endif %}">
+                        {{ task.status }}
+                    </span>
+                </td>
+                <td>
+                    <span class="task-user">
+                        {% if task.assigned_to %}
+                            {{ task.assigned_to.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </span>
+                </td>
+                <td>
+                    {% if task.status == "Attente" %}
+                        <button class="btn btn-success btn-sm take-task" data-task-id="{{ task.id }}">Take</button>
+                    {% endif %}
+
+                    {% if task.assigned_to_id == session['user_id'] and task.status == "En cours" %}
+                        <button class="btn btn-primary btn-sm complete-task" data-task-id="{{ task.id }}">Finish</button>
+                    {% endif %}
+
+                    {% if session['role'] == 'admin' %}
+                        <button class="btn btn-danger btn-sm cancel-task" data-task-id="{{ task.id }}">Cancel</button>
+                    {% endif %}
+
+                    {% if session['role'] == 'admin' and task.status in ["Terminé", "Annulé"] %}
+                        <form action="{{ url_for('archive_task', task_id=task.id) }}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-secondary btn-sm">Archive</button>
+                        </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% if session['role'] == 'admin' %}
+        <div class="mt-4">
+            <a href="{{ url_for('tasks_logs') }}" class="btn btn-dark">📂 Archives</a>
+        </div>
+    {% endif %}
+</div>
+
+<!-- ✅ Socket.IO pour mise à jour en temps réel -->
+<script src="https://cdn.socket.io/4.4.1/socket.io.min.js"></script>
+<script>
+    var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+    // 🔄 Mise à jour en temps réel via Socket.IO
+    socket.on('update_tasks', function() {
+        location.reload();
+    });
+
+    // ✅ Prendre une tâche avec AJAX (sans rechargement)
+    document.addEventListener("click", function(event) {
+        let button = event.target.closest(".take-task");
+        if (button) {
+            let taskId = button.getAttribute("data-task-id");
+
+            fetch(`/tasks/take/${taskId}`, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert(data.message);
+                    location.reload();
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur:", error));
+        }
+    });
+
+    // ✅ Terminer une tâche avec AJAX
+    document.addEventListener("click", function(event) {
+        let button = event.target.closest(".complete-task");
+        if (button) {
+            let taskId = button.getAttribute("data-task-id");
+
+            fetch(`/tasks/complete/${taskId}`, {
+                method: "GET",
+                headers: { "X-Requested-With": "XMLHttpRequest" }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert("Tâche terminée !");
+                    location.reload();
+                } else {
+                    alert("Erreur : " + data.error);
+                }
+            })
+            .catch(error => console.error("Erreur:", error));
+        }
+    });
+
+    // ✅ Annuler une tâche avec AJAX
+    document.addEventListener("click", function(event) {
+        let button = event.target.closest(".cancel-task");
+        if (button) {
+            let taskId = button.getAttribute("data-task-id");
+
+            if (confirm("Voulez-vous vraiment annuler cette tâche ?")) {
+                fetch(`/tasks/cancel/${taskId}`, {
+                    method: "GET",
+                    headers: { "X-Requested-With": "XMLHttpRequest" }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert("Tâche annulée !");
+                        location.reload();
+                    } else {
+                        alert("Erreur : " + data.error);
+                    }
+                })
+                .catch(error => console.error("Erreur:", error));
+            }
+        }
+    });
+
+</script>
+
+{% endblock %}

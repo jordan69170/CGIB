@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block title %}Uploader un BOD{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 fw-bold">📂 Upload a BOD (PDF)</h2>
+
+    <!-- 🔹 Affichage des messages de confirmation ou d'erreur -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 🔹 Formulaire d'upload -->
+    <form action="" method="POST" enctype="multipart/form-data" class="shadow-sm p-4 bg-light rounded">
+        <div class="mb-3 text-center">
+            <label for="file" class="form-label fw-bold"><i class="fas fa-file-upload"></i> Select a PDF file</label>
+            <input type="file" name="file" id="file" class="form-control" accept=".pdf" required>
+            <small class="form-text text-muted">Only <strong>PDF</strong> accepted.</small>
+        </div>
+
+        <!-- ✅ Zone d'aperçu du fichier sélectionné -->
+        <div id="filePreview" class="alert alert-info d-none text-center">
+            <i class="fas fa-file-alt"></i> <span id="fileName">File's Name</span>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+            <button type="submit" class="btn btn-success btn-lg">
+                <i class="fas fa-upload"></i> Upload
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ✅ Ajout de JavaScript pour l'aperçu du fichier -->
+<script>
+    document.getElementById('file').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('filePreview').classList.remove('d-none');
+        }
+    });
+</script>
+
+<!-- Bootstrap JS pour les alertes -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+{% endblock %}

@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion des Utilisateurs{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">👥 User Management</h2>
+
+    <!-- 🔎 Champ de recherche amélioré -->
+    <div class="input-group my-3 shadow-sm">
+        <input type="text" id="searchInput" class="form-control" placeholder="🔍 Rechercher un utilisateur..." aria-label="Rechercher">
+        <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+    </div>
+
+    <!-- ✅ Formulaire pour ajouter un utilisateur -->
+    <div class="card p-4 mb-4 shadow-sm">
+        <h4 class="mb-3"><i class="fas fa-user-plus text-success"></i> Ajouter un utilisateur</h4>
+        <form method="POST" action="{{ url_for('manage_users') }}">
+            <div class="mb-3">
+                <label class="form-label">Nom d'utilisateur</label>
+                <input type="text" class="form-control" name="username" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">E-mail</label>
+                <input type="email" class="form-control" name="email" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Mot de passe</label>
+                <input type="password" class="form-control" name="password" required>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Rôle</label>
+                <select name="role" class="form-select">
+                    <option value="bellboy">Bellboy</option>
+                    <option value="coordinator">Coordinator</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-success"><i class="fas fa-user-plus"></i> Ajouter</button>
+        </form>
+    </div>
+
+    <!-- 🔹 Affichage des messages de confirmation -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show text-center" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- 📋 Tableau des utilisateurs -->
+    <div class="table-responsive">
+        <table class="table table-striped shadow-sm" id="userTable">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Nom d'utilisateur</th>
+                    <th>E-mail</th>
+                    <th>Rôle</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>{{ user.email }}</td>
+                    <td>
+                        {% if user.role == "admin" %}
+                            <span class="badge bg-danger">Admin</span>
+                        {% elif user.role == "coordinator" %}
+                            <span class="badge bg-info">Coordinator</span>
+                        {% else %}
+                            <span class="badge bg-primary">Bellboy</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ url_for('edit_user', user_id=user.id) }}" class="btn btn-warning btn-sm">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ url_for('delete_user', user_id=user.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Voulez-vous vraiment supprimer cet utilisateur ?');">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- 🔍 Script pour la recherche instantanée -->
+<script>
+    document.getElementById("searchInput").addEventListener("keyup", function () {
+        let input = this.value.toLowerCase();
+        let rows = document.querySelectorAll("#userTable tbody tr");
+
+        rows.forEach(row => {
+            let username = row.cells[1].textContent.toLowerCase();
+            let email = row.cells[2].textContent.toLowerCase();
+            let role = row.cells[3].textContent.toLowerCase();
+
+            if (username.includes(input) || email.includes(input) || role.includes(input)) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        });
+    });
+</script>
+
+<!-- ✅ Ajout de DataTables pour pagination et tri -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.11.5/js/dataTables.bootstrap5.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#userTable').DataTable({
+            "paging": true,
+            "ordering": true,
+            "info": true,
+            "language": {
+                "lengthMenu": "Afficher _MENU_ utilisateurs",
+                "search": "Rechercher :",
+                "info": "Affichage de _START_ à _END_ sur _TOTAL_ utilisateurs",
+                "paginate": {
+                    "first": "Premier",
+                    "last": "Dernier",
+                    "next": "Suivant",
+                    "previous": "Précédent"
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block title %}Shift Management{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">📅 Shift Management</h2>
+
+    {% if active_shift %}
+        <div class="alert alert-success text-center">
+            🚀 Shift in progress from {{ active_shift.start_time.strftime('%d/%m/%Y %H:%M') }}
+        </div>
+        <a href="{{ url_for('shift_end') }}" class="btn btn-danger w-100 mt-3">
+            <i class="fas fa-stop-circle"></i> Finish my Shift
+        </a>
+    {% else %}
+        <a href="{{ url_for('start_shift') }}" class="btn btn-success w-100 mt-3">
+            <i class="fas fa-play-circle"></i> Starting a Shift
+        </a>
+    {% endif %}
+</div>
+{% endblock %}

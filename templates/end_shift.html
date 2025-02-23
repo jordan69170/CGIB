@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Fin de Shift{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">🏁 End my Shift</h2>
+
+    <div class="alert alert-warning text-center">
+        Are you sure you want to finish the shift you started at <strong>{{ shift.start_time.strftime('%d/%m/%Y %H:%M') }}</strong> ?
+    </div>
+
+    <form method="POST" action="{{ url_for('end_shift') }}">
+        <div class="mb-3">
+            <label for="comment" class="form-label fw-bold">📝 Add a comment about your shift (optional)</label>
+            <textarea class="form-control" id="comment" name="comment" rows="3"></textarea>
+        </div>
+        <button type="submit" class="btn btn-danger w-100 mt-3">
+            <i class="fas fa-stop-circle"></i> Confirm and End Shift
+        </button>
+    </form>
+
+    <a href="{{ url_for('shift') }}" class="btn btn-secondary w-100 mt-3">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+{% endblock %}

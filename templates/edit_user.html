@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %}✏️ Modifier un utilisateur{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center fw-bold">✏️ Modify user</h2>
+
+    <div class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
+        <form method="POST">
+            <!-- Nom d'utilisateur -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">👤 User name</label>
+                <input type="text" class="form-control" name="username" value="{{ user.username }}" required placeholder="Entrez le nom">
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">📧 Email</label>
+                <input type="email" class="form-control" name="email" value="{{ user.email }}" required placeholder="Entrez l'email">
+            </div>
+
+            <!-- Mot de passe -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">🔑 New password (leave blank if you don't want to change it)</label>
+                <input type="password" class="form-control" name="password" placeholder="Laisser vide pour conserver l'ancien">
+            </div>
+
+            <!-- Rôle -->
+            <div class="mb-3">
+                <label class="form-label fw-semibold">🎭 Role</label>
+                <select name="role" class="form-select">
+                    <option value="bellboy" {% if user.role == 'bellboy' %}selected{% endif %}>Bellboy</option>
+                    <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>Admin</option>
+                </select>
+            </div>
+
+            <!-- Boutons -->
+            <div class="d-flex justify-content-between">
+                <button type="submit" class="btn btn-success btn-sm"><i class="fas fa-save"></i> Save</button>
+                <a href="{{ url_for('manage_users') }}" class="btn btn-secondary btn-sm"><i class="fas fa-arrow-left"></i> Retour</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

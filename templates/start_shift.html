@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>📢 Start my shift</h2>
+    <form method="POST">
+        <label for="duty_phone" class="form-label">Duty Phone number:</label>
+        <select class="form-control" name="duty_phone" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+        </select>
+        <button type="submit" class="btn btn-success mt-3">Start</button>
+    </form>
+</div>
+{% endblock %}
